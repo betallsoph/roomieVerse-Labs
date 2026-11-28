@@ -1,0 +1,38 @@
+---
+interface Props {
+  as?: 'span' | 'div'
+}
+
+const { as = 'span' } = Astro.props
+const vi = ((await Astro.slots.render('vi')) ?? '').trim()
+const en = ((await Astro.slots.render('en')) ?? '').trim()
+
+function plain(html: string) {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function digitRuns(html: string) {
+  const stripped = plain(html).replace(/[.,\s\u00a0\u202f]/g, '')
+  return (stripped.match(/\d+/g) ?? []).slice().sort()
+}
+
+const viRuns = digitRuns(vi)
+const enRuns = digitRuns(en)
+if (viRuns.join('\0') !== enRuns.join('\0')) {
+  throw new Error(`Pitch number mismatch\nVI: ${plain(vi)}\nEN: ${plain(en)}`)
+}
+
+const Tag = as
+---
+
+<Tag data-lang="vi" set:html={vi} />
+<Tag data-lang="en" set:html={en} />
