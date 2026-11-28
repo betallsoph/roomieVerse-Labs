@@ -1,0 +1,22 @@
+---
+import Lang from './Lang.astro'
+import { toEn } from '../i18n/pitch-en'
+
+interface Props {
+  t: string
+  as?: 'span' | 'div'
+}
+
+const { t, as = 'span' } = Astro.props
+const vi = t == null ? '' : String(t)
+const en = vi ? toEn(vi) : ''
+---
+
+{
+  vi ? (
+    <Lang as={as}>
+      <Fragment slot="vi">{vi}</Fragment>
+      <Fragment slot="en">{en}</Fragment>
+    </Lang>
+  ) : null
+}
